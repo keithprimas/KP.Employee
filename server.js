@@ -1,6 +1,6 @@
 const mysql = require('mysql2');
 
-const PORT = process.env.PORT || 3306;
+const PORT = process.env.PORT || 3001;
 
 
 const db = mysql.createConnection(
@@ -11,13 +11,22 @@ const db = mysql.createConnection(
    
     password: '5ZAkQ*ob&',
     database: 'employee_db'
-  },
-  console.log(`Connected to the employee_db database.`)
-);
+  }
+  
+  );
 
-db.query('SELECT * FROM department_names', function (err, results) {
+
+
+
+  db.query('SELECT * FROM department', function (err, results) {
     console.log(`Server running on port ${PORT}`);
+    console.log(err, results);
   });
+
+
+/*
+
+  */
   
 
   

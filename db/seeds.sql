@@ -1,6 +1,6 @@
 INSERT INTO department (id, name)
 VALUES (001, "Orthopedic Surgery"),
-       (002, "Radiology"),
+       (002, "Radiology");
 
 INSERT INTO role (id, title, salary, department_id)
 VALUES (01, "Radiologist", 434000, 002),

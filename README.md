@@ -23,6 +23,7 @@ WHEN I choose to update an employee role
 THEN I am prompted to select an employee to update and their new role and this information is updated in the database
 
 ## Link to GitHub Repository
-
+https://github.com/keithprimas/KP.Employee.git
 
 ## Link to Walkthrough Video
+https://drive.google.com/file/d/1JpYNFY_T2Ed4uJJIrtARF87_W6Upv_C0/view?usp=sharing

@@ -11,19 +11,19 @@ const db = mysql.createConnection(
       host: 'localhost',
       user: 'root',
       password: '5ZAkQ*ob&',
-      database: 'employee_db'
+      database: 'employees_db'
     }
   );
 
 
 
-  db.query('SELECT * FROM department', function (err, results) {
+  db.query('SELECT * FROM departments', function (err, results) {
     console.log(`Server running on port ${PORT}`);
     console.log(err, results);
   });
 
   function viewDepartments() {
-    connection.query('SELECT department_name, department_id FROM departments', (err, res) => {
+    db.query('SELECT department_name, department_id FROM departments', (err, res) => {
         if (err) throw err;
         console.log('\nDepartments:');
         console.table(res, ['department_name', 'department_id']);
@@ -32,7 +32,7 @@ const db = mysql.createConnection(
 }
 
 function viewRoles() {
-    connection.query('SELECT title, role_id, department_id, salary FROM roles', (err, res) => {
+    db.query('SELECT title, role_id, department_id, salary FROM roles', (err, res) => {
         if (err) throw err;
         console.log('\nRoles:');
         console.table(res);
@@ -41,7 +41,7 @@ function viewRoles() {
 }
 
 function viewEmployees() {
-    connection.query('SELECT e.employee_id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary, e2.first_name AS manager FROM employees e LEFT JOIN employees e2 ON e.manager_id = e2.employee_id JOIN roles r ON e.title = r.role_id JOIN departments d ON r.department_id = d.department_id', (err, res) => {
+    db.query('SELECT e.employee_id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary, e2.first_name AS manager FROM employees e LEFT JOIN employees e2 ON e.manager_id = e2.employee_id JOIN roles r ON e.title = r.role_id JOIN departments d ON r.department_id = d.department_id', (err, res) => {
         if (err) throw err;
         console.log('\nEmployees:');
         console.table(res);
@@ -50,7 +50,7 @@ function viewEmployees() {
 }
 
 function viewEmployeesByDepartment() {
-    connection.query('SELECT department_name FROM departments', (err, departments) => {
+    db.query('SELECT department_name FROM departments', (err, departments) => {
         if (err) throw err;
 
         inquirer
@@ -65,7 +65,7 @@ function viewEmployeesByDepartment() {
         .then((departmentAnswer) => {
             const selectedDepartment = departmentAnswer.selectedDepartment;
 
-            connection.query('SELECT e.first_name, e.last_name, r.title, d.department_name AS department FROM employees e JOIN roles r ON e.title = r.role_id JOIN departments d ON r.department_id = d.department_id WHERE d.department_name = ?', selectedDepartment, (err, res) => {
+            db.query('SELECT e.first_name, e.last_name, r.title, d.department_name AS department FROM employees e JOIN roles r ON e.title = r.role_id JOIN departments d ON r.department_id = d.department_id WHERE d.department_name = ?', selectedDepartment, (err, res) => {
                 if (err) throw err;
                 console.log(`\nEmployees in the ${selectedDepartment} department:`);
                 console.table(res);
@@ -76,7 +76,7 @@ function viewEmployeesByDepartment() {
 }
 
 
-//Adding department, role, employees
+
 function addDepartment() {
     inquirer
         .prompt([
@@ -95,7 +95,7 @@ function addDepartment() {
             const { department_name, department_id } = answers;
             const query = 'INSERT INTO departments (department_name, department_id) VALUES (?, ?)';
 
-            connection.query(query, [department_name, department_id], (err, res) => {
+            db.query(query, [department_name, department_id], (err, res) => {
                 if (err) throw err;
                 console.log('Department added successfully!');
                 displayMenu();
@@ -131,7 +131,7 @@ function addRole() {
         const { title, salary, department_id, role_id } = answers;
         const query = 'INSERT INTO roles (title, salary, department_id, role_id) VALUES (?, ?, ?, ?)';
 
-        connection.query(query, [title, salary, department_id, role_id], (err, res) => {
+        db.query(query, [title, salary, department_id, role_id], (err, res) => {
             if (err) throw err;
             console.log('Role added successfully!');
             displayMenu();
@@ -172,7 +172,7 @@ function addEmployee() {
         const { first_name, last_name, role_id, manager_id, employee_id } = answers;
         const query = 'INSERT INTO employees (first_name, last_name, role_id, manager_id, employee_id) VALUES (?, ?, ?, ?, ?)';
 
-        connection.query(query, [first_name, last_name, role_id, manager_id, employee_id], (err, res) => {
+        db.query(query, [first_name, last_name, role_id, manager_id, employee_id], (err, res) => {
             if (err) throw err;
             console.log('Employee added successfully!');
             displayMenu();
@@ -181,9 +181,9 @@ function addEmployee() {
 }
 
 
-//Update an employee role
+
 function getEmployeesWithRoles(callback) {
-    connection.query('SELECT employees.employee_id, employees.first_name, employees.last_name, employees.title, roles.title FROM employees INNER JOIN roles ON employees.title = roles.role_id'
+    db.query('SELECT employees.employee_id, employees.first_name, employees.last_name, employees.title, roles.title FROM employees INNER JOIN roles ON employees.title = roles.role_id'
     , (err, res) => {
         if (err) throw err;
         callback(res);
@@ -207,7 +207,7 @@ function updateEmployeeRole() {
         .then((employeeAnswer) => {
             const selectedEmployee = employeeAnswer.employee;
 
-            connection.query('SELECT role_id, title FROM roles', (err, roleResults) => {
+            db.query('SELECT role_id, title FROM roles', (err, roleResults) => {
                 if (err) throw err;
 
             inquirer
@@ -226,7 +226,7 @@ function updateEmployeeRole() {
                 const { newRole } = roleAnswer;
                 const query = 'UPDATE employees SET role_id = ? WHERE employee_id = ?';
 
-                connection.query(query, [newRole, selectedEmployee.employee_id], (err, res) => {
+                db.query(query, [newRole, selectedEmployee.employee_id], (err, res) => {
                     if (err) throw err;
                     console.log('Employee role updated successfully!');
                     displayMenu();
@@ -237,7 +237,7 @@ function updateEmployeeRole() {
 });
 }
 
-//update employee manager
+
 function updateEmployeeManager() {
     getEmployeesWithRoles((employees) => {
         inquirer
@@ -267,7 +267,7 @@ function updateEmployeeManager() {
 
             const query = 'UPDATE employees SET manager_id = ? WHERE employee_id = ?';
             
-            connection.query(query, [newManager, selectedEmployee.employee_id], (err, res) => {
+            db.query(query, [newManager, selectedEmployee.employee_id], (err, res) => {
                 if (err) throw err;
                 console.log('Employee manager updated successfully!');
                 displayMenu();
@@ -277,7 +277,7 @@ function updateEmployeeManager() {
 }
 
 
-//Display Menu
+
 function displayMenu() {
     inquirer
     .prompt([
@@ -339,14 +339,14 @@ function displayMenu() {
     });
 }
 
-connection.connect((err) => {
+db.connect((err) => {
     if (err) throw err;
     console.log('Connected to the database.');
     displayMenu();
 });
 
 
-//fetch departments
+
 app.get('/api/departments', (req, res) => {
     db.query('SELECT * FROM departments', (err, results) => {
         if (err) {
@@ -357,7 +357,7 @@ app.get('/api/departments', (req, res) => {
     });
 });
 
-//fetch roles
+
 app.get('/api/roles', (req, res) => {
     db.query('SELECT * FROM roles', (err, results) => {
         if (err) {
@@ -368,7 +368,7 @@ app.get('/api/roles', (req, res) => {
     });
 });
 
-//fetch employees
+
 app.get('/api/employees', (req, res) => {
     db.query('SELECT * FROM employees', (err, results) => {
         if (err) {
@@ -380,7 +380,7 @@ app.get('/api/employees', (req, res) => {
 });
 
 
-//listen
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

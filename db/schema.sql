@@ -1,24 +1,37 @@
-DROP DATABASE IF EXISTS employee_db;
-CREATE DATABASE employee_db;
+DROP DATABASE IF EXISTS employees_db;
+CREATE DATABASE employees_db;
 
-USE employee_db;
+DROP DATABASE IF EXISTS departments_db;
+CREATE DATABASE departments_db;
 
-CREATE TABLE department (
-    id INT PRIMARY KEY,
-    name VARCHAR(30)
+DROP DATABASE IF EXISTS roles_db;
+CREATE DATABASE roles_db;
+
+USE employees_db;
+
+
+CREATE TABLE departments (
+    department_id INT PRIMARY KEY,
+    department_name VARCHAR(30) NOT NULL
 );
 
-CREATE TABLE role (
-    id INT PRIMARY KEY,
-    title VARCHAR(30),
-    salary DECIMAL,
-    department_id INT
+CREATE TABLE roles (
+    role_id INT PRIMARY KEY,
+    title VARCHAR(30) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    department_id INT NOT NULL,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id)
 );
 
-CREATE TABLE employee (
-    id INT PRIMARY KEY,
-    first_name VARCHAR(30),
-    last_name VARCHAR(30),
-    role_id INT,
-    manager_id INT
+CREATE TABLE employees (
+    employee_id INT PRIMARY KEY,
+    first_name VARCHAR(30) NOT NULL,
+    last_name VARCHAR(30) NOT NULL,
+    title INT NOT NULL,
+    department_id INT NOT NULL DEFAULT 1,
+    FOREIGN KEY (title) REFERENCES roles(role_id),
+    FOREIGN KEY (department_id) REFERENCES departments(department_id),
+    salary DECIMAL(10, 2) NOT NULL DEFAULT 1,
+    manager_id INT,
+    FOREIGN KEY (manager_id) REFERENCES employees(employee_id)
 );
